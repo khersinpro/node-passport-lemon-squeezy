@@ -1,0 +1,77 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+
+model User {
+    id        Int     @id @default(autoincrement())
+    google_id String? @unique
+    email     String  @unique
+    username  String
+    password  String?
+    role      Role    @default(USER)
+    orders    Order[]
+}
+
+enum Role {
+    USER
+    ADMIN
+    STAFF
+}
+
+model Store {
+    id          Int      @id @default(autoincrement())
+    name        String
+    lemon_store_id    Int   @unique
+    description String?
+    country     Country
+    currency    Currency
+    products    Product[]
+}
+
+enum Country {
+    US
+    UK
+    FR
+    BE
+}
+
+enum Currency {
+    USD
+    GBP
+    EUR
+}
+
+model Product {
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String
+    lemon_product_id  Int
+    lemon_variant_id    Int @default(1)
+    price       Float
+    image       String?
+    store    Store   @relation(fields: [store_id], references: [id])
+    store_id Int
+}
+
+model Order {
+    id          Int      @id @default(autoincrement())
+    lemon_order_id  Int?   @unique
+    lemon_customer_id  Int?
+    lemon_receipt_link String?
+    lemon_store_id    Int?
+    lemon_order_number Int?
+    lemon_product_id  Int?
+    lemon_variant_id  Int? 
+    currency    Currency?
+    status     String?
+    refunded_at DateTime?
+    total_price Float?
+    user       User     @relation(fields: [user_id], references: [id])
+    user_id    Int
+}
